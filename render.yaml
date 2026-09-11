@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: arogyaai-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE
+        value: medicine
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: 7d
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash,gemini-flash-lite-latest
+      - key: FRONTEND_URL
+        sync: false
+      - key: EMERGENCY_SERVICE_NUMBER
+        value: "112"
+      - key: EMERGENCY_CONTACT_NUMBER
+        sync: false
