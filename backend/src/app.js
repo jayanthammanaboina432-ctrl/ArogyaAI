@@ -9,17 +9,38 @@ import chatRoutes from './routes/chat.js';
 import prescriptionRoutes from './routes/prescriptions.js';
 import emergencyRoutes from './routes/emergency.js';
 import { geminiConfigured } from './services/gemini.js';
-import { notFound, errorHandler } from './middleware/errorHandler.js';
+import { notFound, errorHandler, AppError } from './middleware/errorHandler.js';
+
+// Accepts one or more comma-separated origins in FRONTEND_URL and strips
+// any trailing slash from each — a bare trailing "/" is a very easy typo
+// to make in a dashboard env var, and it silently breaks CORS matching
+// (browsers never send a trailing slash in the Origin header) with no
+// clear error pointing at the real cause. Normalizing here means a typo
+// in the hosting dashboard can't take the whole API down.
+function parseAllowedOrigins(raw) {
+  const list = (raw || 'http://localhost:5173')
+    .split(',')
+    .map((o) => o.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+  return list;
+}
 
 export function createApp() {
   const app = express();
+  const allowedOrigins = parseAllowedOrigins(process.env.FRONTEND_URL);
 
   // Disable CSP here: this is a pure JSON API, not an HTML-serving app, and
   // a default CSP can interfere with API responses/tools for no benefit.
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(
     cors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin(origin, callback) {
+        // No Origin header (curl, server-to-server, same-origin) — allow.
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        console.warn(`CORS blocked origin: ${origin} (allowed: ${allowedOrigins.join(', ')})`);
+        callback(new AppError(403, 'This origin is not permitted to access the API.'));
+      },
     })
   );
   app.use(express.json({ limit: '1mb' }));
