@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth.js';
@@ -50,6 +51,12 @@ export function createApp() {
       status: 'ok',
       service: 'arogyaai-backend',
       aiConfigured: geminiConfigured(),
+      // Safe diagnostics only — no credentials, just enough to confirm this
+      // deployment is wired to the database/config we expect it to be.
+      mongoDatabase: mongoose.connection?.db?.databaseName || null,
+      mongoReadyState: mongoose.connection?.readyState ?? null, // 1 = connected
+      jwtSecretConfigured: Boolean(process.env.JWT_SECRET),
+      frontendUrlConfigured: process.env.FRONTEND_URL || null,
     });
   });
 
