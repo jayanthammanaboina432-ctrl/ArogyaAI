@@ -97,41 +97,40 @@ export default function Medicines() {
         <div className="panel">
           <h2 className="result-condition">{result.conditionName}</h2>
 
-          {!result.recognized && (
-            <div className="alert alert-warning">
-              This was not recognized as a common symptom or condition. The
-              information below may be limited.
-            </div>
-          )}
-
-          <p>{result.overview}</p>
-
-          {result.commonMedicines.length > 0 && (
+          {!result.recognized ? (
+            <div className="alert alert-warning">{result.overview}</div>
+          ) : (
             <>
-              <h3 className="result-heading">Commonly Used Medicines</h3>
-              <div className="medicine-list">
-                {result.commonMedicines.map((m) => (
-                  <div className="medicine-item" key={m.genericName}>
-                    <div className="medicine-item-head">
-                      <span className="medicine-name">{m.genericName}</span>
-                      {m.commonBrandNames && (
-                        <span className="medicine-brands">{m.commonBrandNames}</span>
-                      )}
-                    </div>
-                    <p className="medicine-purpose">{m.purpose}</p>
-                    <p className="medicine-precautions">
-                      <strong>Precautions:</strong> {m.precautions}
-                    </p>
+              <p>{result.overview}</p>
+
+              {result.commonMedicines.length > 0 && (
+                <>
+                  <h3 className="result-heading">Commonly Used Medicines</h3>
+                  <div className="medicine-list">
+                    {result.commonMedicines.map((m) => (
+                      <div className="medicine-item" key={m.genericName}>
+                        <div className="medicine-item-head">
+                          <span className="medicine-name">{m.genericName}</span>
+                          {m.commonBrandNames && (
+                            <span className="medicine-brands">{m.commonBrandNames}</span>
+                          )}
+                        </div>
+                        <p className="medicine-purpose">{m.purpose}</p>
+                        <p className="medicine-precautions">
+                          <strong>Precautions:</strong> {m.precautions}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
+
+              <h3 className="result-heading">When to See a Doctor</h3>
+              <p>{result.whenToSeeADoctor}</p>
+
+              <div className="alert alert-info">{result.disclaimer}</div>
             </>
           )}
-
-          <h3 className="result-heading">When to See a Doctor</h3>
-          <p>{result.whenToSeeADoctor}</p>
-
-          <div className="alert alert-info">{result.disclaimer}</div>
         </div>
       )}
     </div>

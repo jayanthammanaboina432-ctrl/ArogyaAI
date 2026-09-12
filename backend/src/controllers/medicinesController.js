@@ -43,6 +43,9 @@ function buildPrompt(query) {
   ].join('\n');
 }
 
+const OUT_OF_SCOPE_MESSAGE =
+  'I can only help with health and healthcare-related questions. Please enter a symptom or medical condition, such as fever, headache, or cold.';
+
 function validate(result, fallbackName) {
   const ok =
     result &&
@@ -60,8 +63,25 @@ function validate(result, fallbackName) {
   if (!ok) {
     throw new AppError(502, 'AI service returned an unexpected response. Please try again.');
   }
+
+  // The model can be tricked into "explaining" an unrelated query (e.g. "what
+  // is python") instead of refusing outright. Don't trust its prose in that
+  // case — override with a fixed out-of-scope message regardless of what it
+  // wrote for overview/whenToSeeADoctor.
+  if (!result.recognized) {
+    return {
+      recognized: false,
+      conditionName: fallbackName,
+      overview: OUT_OF_SCOPE_MESSAGE,
+      commonMedicines: [],
+      whenToSeeADoctor: '',
+      disclaimer:
+        "This is general information, not a prescription. Follow your doctor's prescription or the medicine label, and consult a qualified healthcare professional or pharmacist before taking any medicine.",
+    };
+  }
+
   return {
-    recognized: Boolean(result.recognized),
+    recognized: true,
     conditionName: result.conditionName.trim() || fallbackName,
     overview: result.overview.trim(),
     commonMedicines: result.commonMedicines.map((m) => ({
