@@ -56,7 +56,7 @@ function validate(result) {
     Array.isArray(result.medicineNames) &&
     result.medicineNames.every((s) => typeof s === 'string');
   if (!ok) {
-    throw new AppError(502, 'AI service returned an unexpected response. Please try again.');
+    throw new AppError(502, 'ArogyaAI could not process that response. Please try again.');
   }
   return {
     looksLikePrescription: result.looksLikePrescription,

@@ -45,7 +45,7 @@ function validate(result) {
     result.symptomsConsidered.every((s) => typeof s === 'string') &&
     typeof result.generalGuidance === 'string';
   if (!ok) {
-    throw new AppError(502, 'AI service returned an unexpected response. Please try again.');
+    throw new AppError(502, 'ArogyaAI could not process that response. Please try again.');
   }
 
   // Don't trust the model's own prose for an off-topic query — it can be

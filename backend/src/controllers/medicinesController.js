@@ -61,7 +61,7 @@ function validate(result, fallbackName) {
     ) &&
     typeof result.whenToSeeADoctor === 'string';
   if (!ok) {
-    throw new AppError(502, 'AI service returned an unexpected response. Please try again.');
+    throw new AppError(502, 'ArogyaAI could not process that response. Please try again.');
   }
 
   // The model can be tricked into "explaining" an unrelated query (e.g. "what
