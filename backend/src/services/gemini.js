@@ -59,12 +59,17 @@ async function callGemini({ contents, systemInstruction, generationConfig }) {
     if (Date.now() - startedAt > TOTAL_DEADLINE_MS - 3000) break;
 
     const url = `${API_ROOT}/${model}:generateContent?key=${key}`;
+    // Gemini 3 flash models "think" before answering, which more than doubles
+    // latency; these tasks don't need it.
+    const modelBody = model.startsWith('gemini-3-flash')
+      ? { ...body, generationConfig: { ...generationConfig, thinkingConfig: { thinkingLevel: 'minimal' } } }
+      : body;
     let res;
     try {
       res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(modelBody),
         signal: AbortSignal.timeout(
           Math.min(ATTEMPT_TIMEOUT_MS, TOTAL_DEADLINE_MS - (Date.now() - startedAt))
         ),
